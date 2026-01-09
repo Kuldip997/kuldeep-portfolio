@@ -1,5 +1,4 @@
 import { useState } from "react";
-import emailjs from "@emailjs/browser";
 import { Button } from "@/components/ui/button";
 import { Mail, MessageCircle, Send } from "lucide-react";
 
@@ -8,7 +7,7 @@ const ContactSection = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
-  const sendEmail = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -17,16 +16,24 @@ const ContactSection = () => {
     const form = e.currentTarget;
 
     try {
-      await emailjs.sendForm(
-        "service_lfx3inq",        // ✅ Your Service ID
-        "template_fszn2ch",       // ✅ Your Template ID
-        form,
-        "0pk0krJtEiIZeBbQa"       // ✅ Your Public Key
+      const response = await fetch(
+        "https://formspree.io/f/mreezzzb",
+        {
+          method: "POST",
+          body: new FormData(form),
+          headers: {
+            Accept: "application/json",
+          },
+        }
       );
 
-      setSuccess(true);
-      form.reset();
-    } catch (err) {
+      if (response.ok) {
+        setSuccess(true);
+        form.reset();
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
+    } catch {
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
@@ -47,7 +54,7 @@ const ContactSection = () => {
         <div className="grid md:grid-cols-2 gap-12">
           {/* Contact Form */}
           <form
-            onSubmit={sendEmail}
+            onSubmit={handleSubmit}
             className="bg-card p-8 rounded-2xl border space-y-6"
           >
             <div>
